@@ -1,5 +1,5 @@
 import './styles/g2.css'
-import { attachInputs, loadEvenHub } from './lib/evenhub.js'
+import { attachInputs, initEvenHub } from './lib/evenhub.js'
 import { connect } from './lib/sse.js'
 import type { Card } from './lib/types.js'
 import { initialState, reduce, type AppState, type Event } from './state.js'
@@ -20,6 +20,7 @@ let state: AppState = initialState
 let lastStampKey = ''
 let decodeTimer = 0
 let queued: Card | null = null
+let renderToGlasses: ((lines: [string, string, string, string]) => void) | null = null
 
 function dispatch(event: Event): void {
   state = reduce(state, event)
@@ -44,6 +45,20 @@ function render(): void {
     case 'OFFLINE': body = offline(); break
   }
   root!.innerHTML = body
+
+  if (renderToGlasses) {
+    const source = state.card
+      ? `${state.card.source.toUpperCase()} · ${state.card.network.toUpperCase()}`
+      : state.screen
+    const statement = state.card?.plainLine ?? (state.screen === 'IDLE' ? 'NO REQUESTS WAITING' : state.screen)
+    const facts = state.card
+      ? state.card.facts.map((f) => `${f.flagged ? '! ' : ''}${f.label} ${f.value}`).join('\n')
+      : ''
+    const action = state.stamp
+      ? `${state.stamp.decision} ${state.stamp.route}`
+      : state.card ? `AUTO-DENY ${Math.max(0, Math.ceil((state.card.autoDenyAt - now) / 1000))}s` : ''
+    renderToGlasses([source, statement, facts, action])
+  }
 
   if (state.screen === 'DECODING' && state.card) {
     window.clearTimeout(decodeTimer)
@@ -84,8 +99,16 @@ connect(backend, {
 })
 
 window.setInterval(() => dispatch({ type: 'TICK', now: Date.now() }), 250)
-void loadEvenHub()
 render()
+void initEvenHub({
+  onRingTap: () => dispatch({ type: 'RING_TAP' }),
+  onRingHold: () => dispatch({ type: 'RING_HOLD' }),
+  onVoice: (text) => dispatch({ type: 'VOICE', text }),
+  onTouch: () => dispatch({ type: 'VOICE', text: 'details' }),
+  onSwipe: () => dispatch({ type: 'VOICE', text: 'details' }),
+  onOffline: () => dispatch({ type: 'OFFLINE' }),
+  onOnline: () => dispatch({ type: 'ONLINE' }),
+}).then((renderer) => { renderToGlasses = renderer; render() }).catch(() => undefined)
 
 // Exposed for the Even Hub simulator harness. Not a mock data source.
 ;(window as unknown as { sigil: { start: (card: Card) => void; state: () => AppState; queued: () => Card | null } }).sigil = {

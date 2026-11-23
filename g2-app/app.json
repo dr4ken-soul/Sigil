@@ -1,8 +1,17 @@
 {
+  "package_id": "com.psychohq.sigil",
+  "edition": "202601",
   "name": "Sigil",
   "version": "0.1.0",
-  "description": "Every transaction explained in one line on your glasses, let through or stopped with one tap of the ring",
-  "origins": ["http://localhost:8080"],
-  "inputs": ["ring", "touch", "voice"],
-  "display": { "width": 576, "height": 288, "monochrome": true }
+  "min_app_version": "2.2.10",
+  "min_sdk_version": "0.0.16",
+  "entrypoint": "index.html",
+  "permissions": [
+    {
+      "name": "network",
+      "desc": "Sigil needs the network to fetch the decoded verdict queue from its backend.",
+      "whitelist": ["http://localhost:8080"]
+    }
+  ],
+  "supported_languages": ["en"]
 }

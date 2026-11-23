@@ -14,4 +14,5 @@ coverage/
 .DS_Store
 test-results/
 playwright-report/
+screenshots/
 .env*

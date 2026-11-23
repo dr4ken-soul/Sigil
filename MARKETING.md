@@ -2,15 +2,24 @@
 
 ## Goal
 
-Get Sigil in front of the Heads Up judges and the crypto builder audience during build week without sounding like a pitch deck. The story: people sign transactions they cannot read. Sigil reads them in one line on a pair of glasses and asks for one tap. Every post proves the product works.
+Get Sigil in front of the Heads Up judges (Even Realities, TVM Ventures, partner VCs, Daos Hub) and the crypto builder audience during build week without sounding like a pitch deck.
 
-Core proof: real testnet request on the glasses, real DANGER verdict on an unlimited approval, one ring tap placing a real Hyperliquid testnet order, Telegram mirror updating live.
+The story is simple: people sign transactions they cannot read. Sigil reads them out loud in one line on a pair of glasses and asks for one tap. Every post proves the product works, not that the idea is interesting.
+
+Core proof to show in public: a real testnet request landing on the glasses, a real DANGER verdict on an unlimited approval, one ring tap placing a real Hyperliquid testnet order, the Telegram mirror updating live.
 
 ## Posting Style
 
-All lowercase. Builder voice, not company voice. One clear idea per post. Short lines with space between thoughts. Show what works, never explain what you plan to build. The demo video does the heavy lifting.
+- all lowercase
+- builder voice, not company voice
+- one clear idea per post
+- short lines with space between thoughts
+- show what works, never explain what you plan to build
+- the demo video does the heavy lifting, copy supports it
 
-## Post 1, project announcement
+## Post Plan
+
+### post 1, project announcement
 
 ```
 building sigil for the @EvenRealities heads up hackathon 🟢
@@ -26,7 +35,9 @@ testnet only. never holds funds. never auto-approves.
 demo drops before submission @[date]
 ```
 
-## Post 2, final submission
+Attach a 60-second screen recording of one request travelling from Telegram to the glasses to the stamp.
+
+### post 2, final submission
 
 ```
 submitted sigil to the heads up hackathon
@@ -40,14 +51,56 @@ the audit ledger keeps every verdict. time, source, sentence, route.
 [demo link] [repo link] [even hub listing if published]
 ```
 
+Attach the final demo video and the repository link.
+
+---
+
 ## Submission Notes
 
-Project title Sigil. Tagline "Read before you sign." Tracks 01 and 02 plus Best Telegram integration. Money safety line: every demo runs on testnet or read-only data, Sigil holds no funds and gives no financial advice.
+**Project title:** Sigil
 
-Built with Vite and TypeScript and Tailwind for G2, Next.js 14 and Tailwind and motion/react for companion, Node.js and Fastify and SQLite for backend, viem, official TON libraries, Hyperliquid testnet API, grammY, Groq Whisper.
+**Tagline:** Read before you sign.
 
-Project description under 200 words and demo flow under 3 minutes are the canonical copy in the brief. Demo flow: Telegram request and SAFE, ring tap and mirror, unlimited approval DANGER and ring hold, Hyperliquid testnet order, TON decode with comment, companion ledger and settings, voice path, wordmark.
+**Category:** Tracks 01 (Messaging & News, Telegram) and 02 (Crypto & DeFi, Gram Wallet, Hyperliquid, Trust Wallet), plus Best Telegram integration
+
+**Money safety line:** every demo runs on testnet or read-only data. Sigil holds no funds and gives no financial advice.
+
+**Built with:**
+- Vite + TypeScript + Tailwind (Even Hub G2 app)
+- Next.js 14 + Tailwind + motion/react (companion)
+- Node.js + Fastify + SQLite (backend)
+- viem (EVM), official TON libraries, Hyperliquid testnet API
+- grammY (Telegram Bot API)
+- Whisper (speech to text)
+
+**Project description (under 200 words):**
+
+Sigil is a human-readable transaction approval layer for Even G2 smart glasses. Signing requests from Hyperliquid testnet orders, EVM transactions, TON transfers and the Telegram bot are decoded, simulated and risk-scored on the Sigil backend, then delivered to the glasses as one deterministic sentence of plain English with a SAFE, CHECK or DANGER verdict carried by glyph and label, never colour alone. The ring tap approves, a hold or voice denies, a 30-second countdown auto-denies for safety, and a mechanical verdict stamp records the decision in an audit ledger before any testnet execution step runs. The sentence is built from decoded facts by fixed templates rather than a language model, so the same request always produces the same words, which matters when the sentence is the only thing standing between a user and a drainer. The Telegram bot mirrors every verdict back to the chat it came from. The companion site pairs devices by code, holds risk rules, and keeps the full audit trail. Sigil never holds funds, never auto-approves, and never touches mainnet in this build.
+
+**Demo video flow (under 3 minutes):**
+1. Telegram request forwarded; glasses show the verdict card, SAFE (25 seconds)
+2. Ring tap approves; stamp lands; mirror updates in chat (25 seconds)
+3. Unlimited-approval request arrives; ✕ DANGER, detail row shows the flag; ring hold denies (30 seconds)
+4. Hyperliquid testnet order approved on glasses; testnet order placed; receipt in ledger (30 seconds)
+5. TON transfer decode with comment (20 seconds)
+6. Companion: ledger, facts, explorer links, settings invariant "Sigil never auto-approves" (25 seconds)
+7. Voice path: "deny" and "explain" on real audio (15 seconds)
+8. End on the SIGIL wordmark (5 seconds)
+
+---
 
 ## Checklist
 
-Registered on DoraHacks with community named. Post 1 after simulator flow is real on camera. Demo video under 3 minutes. Post 2 at submission. Repo public with pre-23 November statement. Submitted before 29 November 2026 20:59 UTC+1. Demo Day 3 December remote slot confirmed if not attending Dubai.
+- [ ] Registered on DoraHacks before submission, community named in "How did you hear about this hackathon?" (fill before submitting, this drives the Community Partner Award)
+- [ ] Post 1 goes out once the simulator flow is real on camera
+- [ ] Demo video recorded in the Even Hub simulator or on G2, trimmed to 3 minutes
+- [ ] Post 2 goes out at submission
+- [ ] Repo public, README carries the pre-23 November statement and the feature requests
+- [ ] Submitted before 29 November 2026, 20:59 (UTC+1)
+- [ ] Demo Day 3 December: remote demo slot confirmed if not attending Dubai
+
+---
+
+## Builder override: Groq STT
+
+The builder chose Groq for speech to text. `STT_PROVIDER=groq` and `GROQ_API_KEY` replace `whisper-api` and `OPENAI_API_KEY`. The route posts to `https://api.groq.com/openai/v1/audio/transcriptions` with model `whisper-large-v3-turbo`. The original Whisper wording above is retained as the written spec.
