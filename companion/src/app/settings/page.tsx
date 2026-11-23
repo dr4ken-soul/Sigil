@@ -9,12 +9,23 @@ import type { SettingsResponse } from '../../lib/types'
 /** Risk rules, timeouts, trusted recipients, integrations and voice. */
 export default function SettingsPage() {
   const [data, setData] = useState<SettingsResponse | null>(null)
+  const [error, setError] = useState('')
   const [toast, setToast] = useState('')
   const [newRecipient, setNewRecipient] = useState('')
   const [confirmIndex, setConfirmIndex] = useState<number | null>(null)
 
+  async function load(): Promise<void> {
+    setError('')
+    try {
+      const result = await getJson<SettingsResponse>('/settings')
+      setData(result)
+    } catch {
+      setError('Settings unavailable. The backend is not reachable from this browser.')
+    }
+  }
+
   useEffect(() => {
-    void getJson<SettingsResponse>('/settings').then(setData).catch(() => setToast('Not saved, retry'))
+    void load()
   }, [])
 
   function notify() {
@@ -34,7 +45,24 @@ export default function SettingsPage() {
   }
 
   if (!data) {
-    return <><TopBar /><main className="relative z-10 pt-14 min-h-screen bg-base p-10 text-text-muted">Loading settings</main></>
+    return (
+      <>
+        <TopBar />
+        <main className="relative z-10 pt-14 min-h-screen bg-base text-text-primary">
+          <div className="max-w-2xl mx-auto px-6 py-12">
+            {error ? (
+              <div className="bg-panel border border-risk rounded-md p-6">
+                <div className="font-mono text-[11px] tracking-[0.22em] uppercase text-risk">SETTINGS UNAVAILABLE</div>
+                <p className="mt-3 text-sm text-text-secondary">{error}</p>
+                <button type="button" onClick={() => void load()} className="mt-5 font-mono text-[11px] tracking-[0.18em] uppercase text-phosphor border border-phosphor px-3 py-2 rounded-sm">RETRY</button>
+              </div>
+            ) : (
+              <div className="font-mono text-sm text-text-muted" role="status" aria-live="polite">Loading settings</div>
+            )}
+          </div>
+        </main>
+      </>
+    )
   }
 
   const { settings, integrations } = data
