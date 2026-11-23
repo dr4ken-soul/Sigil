@@ -295,6 +295,7 @@ HYPERLIQUID_TESTNET_API=https://api.hyperliquid-testnet.xyz
 HYPERLIQUID_AGENT_KEY=          # testnet agent key, never mainnet
 ETHEREUM_RPC_URL=               # Sepolia or equivalent testnet RPC
 TONCENTER_TESTNET_API=
+TONCENTER_API_KEY=
 TELEGRAM_BOT_TOKEN=
 STT_PROVIDER=whisper-api        # or whisper-cpp
 OPENAI_API_KEY=                 # only when STT_PROVIDER=whisper-api

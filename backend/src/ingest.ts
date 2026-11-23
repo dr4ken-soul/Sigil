@@ -22,7 +22,7 @@ export async function ingest(
   const simulation = decoded.kind === 'hl-order'
     ? simulateHyperliquid()
     : decoded.kind === 'ton-transfer'
-      ? await simulateTon(decoded, ctx.env.TONCENTER_TESTNET_API ?? '')
+      ? await simulateTon(decoded, ctx.env.TONCENTER_TESTNET_API ?? '', ctx.env.TONCENTER_API_KEY ?? '')
       : await simulateEvm(decoded, ctx.env.ETHEREUM_RPC_URL ?? '')
   const facts = [...decoded.facts]
   if (risk.level === 'check' || risk.level === 'danger') {

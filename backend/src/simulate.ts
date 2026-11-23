@@ -26,10 +26,12 @@ export async function simulateEvm(decoded: DecodedRequest, rpcUrl: string): Prom
 }
 
 /** TON testnet state read against the configured endpoint. */
-export async function simulateTon(decoded: DecodedRequest, endpoint: string): Promise<SimulationResult> {
+export async function simulateTon(decoded: DecodedRequest, endpoint: string, apiKey = ''): Promise<SimulationResult> {
   if (!endpoint) return { ok: false, note: 'TONCENTER_TESTNET_API not configured', facts: [] }
   try {
-    const response = await fetch(`${endpoint}/api/v2/addresses/${encodeURIComponent(decoded.to)}`)
+    const response = await fetch(`${endpoint}/api/v2/addresses/${encodeURIComponent(decoded.to)}`, {
+      headers: apiKey ? { 'X-API-Key': apiKey } : undefined,
+    })
     if (!response.ok) return { ok: false, note: `TON_STATE_FAILED: ${response.status}`, facts: [] }
     return { ok: true, note: 'TON testnet state read', facts: ['STATE available on testnet'] }
   } catch (error) {
