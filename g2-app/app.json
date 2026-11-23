@@ -10,7 +10,7 @@
     {
       "name": "network",
       "desc": "Sigil needs the network to fetch the decoded verdict queue from its backend.",
-      "whitelist": ["http://localhost:8080"]
+      "whitelist": ["http://localhost:8080", "https://sigil-production-a1edfe7c.up.railway.app"]
     }
   ],
   "supported_languages": ["en"]
