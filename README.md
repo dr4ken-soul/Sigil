@@ -69,6 +69,30 @@ Per the hackathon rules: the Even Hub SDK and simulator, the Hyperliquid testnet
 4. **Gram Wallet:** no testnet signing sandbox, so third-party approval previews cannot show a wallet-native confirmation without real keys
 5. **Telegram Mini Apps:** no bridge events to G2 input (ring, touch), which would let a Mini App mirror ride the same verdict interaction as the glasses app
 
+## Backend Deployment
+
+The backend needs a long-running host with a persistent volume. Railway is the recommended target.
+
+```bash
+# in Railway, create a service from this repository
+# set Root Directory to backend
+# add a volume mounted at /app/data
+# set these variables in the Railway dashboard, never in this repository:
+# PORT=8080
+# DATABASE_URL=/app/data/sigil.db
+# DRAINER_LIST_PATH=./data/drainers.json
+# SESSION_SECRET=<generated locally>
+# HYPERLIQUID_AGENT_KEY, ETHEREUM_RPC_URL, TONCENTER_TESTNET_API, TELEGRAM_BOT_TOKEN, GROQ_API_KEY
+```
+
+Then set the companion's public backend URL on Vercel and redeploy.
+
+```bash
+# run from your own terminal
+vercel env add NEXT_PUBLIC_BACKEND_URL production
+# value is the Railway service URL, for example https://sigil-app.up.railway.app
+```
+
 ## Licence and Attribution
 
 Code licence: MIT (to confirm at publication). Product names (Hyperliquid, Telegram, Trust Wallet, Gram Wallet, Even Realities) belong to their owners; Sigil integrates their public APIs per their terms.
