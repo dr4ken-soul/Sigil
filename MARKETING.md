@@ -44,7 +44,7 @@ the audit ledger keeps every verdict. time, source, sentence, route.
 
 Project title Sigil. Tagline "Read before you sign." Tracks 01 and 02 plus Best Telegram integration. Money safety line: every demo runs on testnet or read-only data, Sigil holds no funds and gives no financial advice.
 
-Built with Vite and TypeScript and Tailwind for G2, Next.js 14 and Tailwind and motion/react for companion, Node.js and Fastify and SQLite for backend, viem, official TON libraries, Hyperliquid testnet API, grammY, Whisper.
+Built with Vite and TypeScript and Tailwind for G2, Next.js 14 and Tailwind and motion/react for companion, Node.js and Fastify and SQLite for backend, viem, official TON libraries, Hyperliquid testnet API, grammY, Groq Whisper.
 
 Project description under 200 words and demo flow under 3 minutes are the canonical copy in the brief. Demo flow: Telegram request and SAFE, ring tap and mirror, unlimited approval DANGER and ring hold, Hyperliquid testnet order, TON decode with comment, companion ledger and settings, voice path, wordmark.
 

@@ -20,7 +20,7 @@ Every transaction explained in one line on your glasses, let through or stopped 
 
 ## Stack
 
-G2 app: Vite, TypeScript, Tailwind, Even Hub SDK, bundled woff2 subsets. Companion: Next.js 14 App Router, TypeScript, Tailwind, motion/react. Backend: Node.js, TypeScript, Fastify, SQLite. EVM viem, TON official JS, Hyperliquid testnet only, Telegram grammY, Whisper STT.
+G2 app: Vite, TypeScript, Tailwind, Even Hub SDK, bundled woff2 subsets. Companion: Next.js 14 App Router, TypeScript, Tailwind, motion/react. Backend: Node.js, TypeScript, Fastify, SQLite. EVM viem, TON official JS, Hyperliquid testnet only, Telegram grammY, Groq Whisper STT.
 
 ## Project Structure
 

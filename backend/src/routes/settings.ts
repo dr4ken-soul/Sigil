@@ -14,7 +14,7 @@ export function registerSettingsRoutes(app: FastifyInstance, ctx: AppContext): v
         ethereum: lastFour(ctx.env.ETHEREUM_RPC_URL),
         ton: lastFour(ctx.env.TONCENTER_TESTNET_API),
         telegram: lastFour(ctx.env.TELEGRAM_BOT_TOKEN),
-        stt: lastFour(ctx.env.OPENAI_API_KEY ?? ctx.env.WHISPER_CPP_PATH),
+        stt: lastFour(ctx.env.GROQ_API_KEY ?? ctx.env.WHISPER_CPP_PATH),
       },
     }
   })

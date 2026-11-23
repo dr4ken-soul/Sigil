@@ -13,7 +13,7 @@ git --version     # any recent version
 npm install -g @evenrealities/evenhub-cli @evenrealities/evenhub-simulator
 ```
 
-Accounts and keys (all testnet or free tier): Telegram bot token from @BotFather, Hyperliquid testnet agent key, EVM testnet RPC URL, TON testnet endpoint, Whisper via OpenAI API key or local whisper.cpp.
+Accounts and keys (all testnet or free tier): Telegram bot token from @BotFather, Hyperliquid testnet agent key, EVM testnet RPC URL, TON testnet endpoint, Whisper via Groq API key or local whisper.cpp.
 
 ## Repository Setup
 
@@ -26,7 +26,7 @@ mkdir -p companion/src/{app/{pair,settings},components,lib,styles}
 mkdir -p tests
 ```
 
-Root `.env` for backend, never committed: PORT, DATABASE_URL, SESSION_SECRET, HYPERLIQUID_TESTNET_API, HYPERLIQUID_AGENT_KEY, ETHEREUM_RPC_URL, TONCENTER_TESTNET_API, TELEGRAM_BOT_TOKEN, STT_PROVIDER, OPENAI_API_KEY, WHISPER_CPP_PATH, DRAINER_LIST_PATH.
+Root `.env` for backend, never committed: PORT, DATABASE_URL, SESSION_SECRET, HYPERLIQUID_TESTNET_API, HYPERLIQUID_AGENT_KEY, ETHEREUM_RPC_URL, TONCENTER_TESTNET_API, TELEGRAM_BOT_TOKEN, STT_PROVIDER, GROQ_API_KEY, WHISPER_CPP_PATH, DRAINER_LIST_PATH.
 
 ## Phase 1: Backend Core
 

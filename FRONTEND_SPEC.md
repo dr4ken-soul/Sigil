@@ -165,7 +165,7 @@ Risk never rides on colour alone. Full companion keyboard operability with visib
 
 ## 8. Technical approach and tools
 
-G2: Vite, TypeScript, Tailwind, Even Hub SDK, CSS transitions only, woff2 subsets. Companion: Next.js 14 App Router, TypeScript, Tailwind, motion/react. Backend: Node.js, TypeScript, Fastify, viem, TON libraries, grammY, Whisper, SQLite. Deterministic sentence by template. Secrets in backend env only. Vitest and Playwright.
+G2: Vite, TypeScript, Tailwind, Even Hub SDK, CSS transitions only, woff2 subsets. Companion: Next.js 14 App Router, TypeScript, Tailwind, motion/react. Backend: Node.js, TypeScript, Fastify, viem, TON libraries, grammY, Groq Whisper, SQLite. Deterministic sentence by template. Secrets in backend env only. Vitest and Playwright.
 
 ## 9. Assets and image briefs
 
