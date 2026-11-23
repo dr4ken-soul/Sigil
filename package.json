@@ -1,0 +1,14 @@
+{
+  "name": "sigil",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Human-readable transaction approval for Even G2 smart glasses",
+  "scripts": {
+    "build": "npm --prefix backend run build && npm --prefix g2-app run build && npm --prefix companion run build",
+    "test": "npm --prefix backend test && npm --prefix g2-app test && npm --prefix companion test",
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.50.1"
+  }
+}

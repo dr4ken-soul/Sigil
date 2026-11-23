@@ -1,0 +1,39 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-primary: #0a0d0b;
+  --bg-secondary: #0f1411;
+  --bg-surface: #151b17;
+  --bg-elevated: #1b231e;
+  --phosphor: #4dff9e;
+  --phosphor-hover: #7dffb9;
+  --phosphor-glow: rgba(77, 255, 158, 0.10);
+  --risk: #ffb454;
+  --risk-glow: rgba(255, 180, 84, 0.12);
+  --text-primary: #e9f4ee;
+  --text-secondary: #8fa79b;
+  --text-muted: #46564e;
+  --border-subtle: rgba(77, 255, 158, 0.06);
+  --border-default: rgba(77, 255, 158, 0.14);
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+  --duration-fast: 120ms;
+  --duration-normal: 180ms;
+  --duration-slow: 280ms;
+  --ease-snap: cubic-bezier(0.2, 0, 0, 1);
+}
+
+html, body { background: var(--bg-primary); color: var(--text-primary); }
+body { font-family: 'Space Grotesk', system-ui, sans-serif; }
+*:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--phosphor), 0 0 0 4px var(--bg-primary); }
+.scanlines {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.03;
+  background: repeating-linear-gradient(0deg, transparent 0 2px, rgba(77,255,158,0.5) 2px 3px);
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0ms !important; transition-duration: 0ms !important; }
+}

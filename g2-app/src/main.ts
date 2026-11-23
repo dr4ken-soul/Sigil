@@ -1,0 +1,95 @@
+import './styles/g2.css'
+import { attachInputs, loadEvenHub } from './lib/evenhub.js'
+import { connect } from './lib/sse.js'
+import type { Card } from './lib/types.js'
+import { initialState, reduce, type AppState, type Event } from './state.js'
+import { idle } from './screens/idle.js'
+import { decoding } from './screens/decoding.js'
+import { verdict } from './screens/verdict.js'
+import { detail } from './screens/detail.js'
+import { voice } from './screens/voice.js'
+import { stamp as stampScreen } from './screens/stamp.js'
+import { summary } from './screens/summary.js'
+import { error as errorScreen, offline } from './screens/error.js'
+
+const backend = (import.meta.env?.VITE_BACKEND_URL as string | undefined) ?? 'http://localhost:8080'
+const root = document.getElementById('app')
+if (!root) throw new Error('APP_ROOT_MISSING')
+
+let state: AppState = initialState
+let lastStampKey = ''
+let decodeTimer = 0
+let queued: Card | null = null
+
+function dispatch(event: Event): void {
+  state = reduce(state, event)
+  render()
+}
+
+function render(): void {
+  const now = Date.now()
+  let body = ''
+  switch (state.screen) {
+    case 'IDLE': body = idle(); break
+    case 'DECODING': body = decoding(state.decodeDots, now - state.decodeStarted); break
+    case 'VERDICT': body = state.card ? verdict(state.card, now, state.explainUntil) : idle(); break
+    case 'DETAIL': body = state.card ? detail(state.card, state.detailIndex) : idle(); break
+    case 'VOICE': body = voice(); break
+    case 'STAMP':
+      body = (state.card ? verdict(state.card, now, 0) : '') + (state.stamp ? stampScreen(state.stamp) : '')
+      body = `<div class="opacity-35">${body}</div>`
+      break
+    case 'SUMMARY': body = summary(state.counts); break
+    case 'ERROR': body = errorScreen(state.errorStage); break
+    case 'OFFLINE': body = offline(); break
+  }
+  root!.innerHTML = body
+
+  if (state.screen === 'DECODING' && state.card) {
+    window.clearTimeout(decodeTimer)
+    decodeTimer = window.setTimeout(() => dispatch({ type: 'DECODED' }), 250)
+  }
+
+  if (state.screen === 'STAMP' && state.stamp && state.card) {
+    const key = `${state.card.id}:${state.stamp.decision}`
+    if (key !== lastStampKey) {
+      lastStampKey = key
+      const decision = state.stamp.decision === 'APPROVED' ? 'approved' : 'denied'
+      const route = state.stamp.route === 'VIA VOICE' ? 'voice' : state.stamp.route === 'VIA TIMEOUT' ? 'timeout' : 'ring'
+      void fetch(`${backend}/requests/${state.card.id}/verdict`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ decision, route }),
+      }).catch(() => undefined)
+    }
+  }
+}
+
+attachInputs(root, {
+  onRingTap: () => dispatch({ type: 'RING_TAP' }),
+  onRingHold: () => dispatch({ type: 'RING_HOLD' }),
+  onVoice: (text) => dispatch({ type: 'VOICE', text }),
+  onTouch: () => { dispatch({ type: 'VOICE', text: '' }); if (state.screen === 'VERDICT') render() },
+  onSwipe: () => { if (state.screen === 'VERDICT') dispatch({ type: 'VOICE', text: 'details' }) },
+  onOffline: () => dispatch({ type: 'OFFLINE' }),
+  onOnline: () => dispatch({ type: 'ONLINE' }),
+})
+
+connect(backend, {
+  onRequest: (card) => { queued = card; dispatch({ type: 'REQUEST', card }) },
+  onVerdict: (card) => { queued = card; if (state.screen !== 'STAMP') dispatch({ type: 'NEXT' }) },
+  onQueue: (card) => { if (card) queued = card },
+  onOffline: () => dispatch({ type: 'OFFLINE' }),
+  onOnline: () => { if (state.screen === 'OFFLINE') dispatch({ type: 'ONLINE' }) },
+})
+
+window.setInterval(() => dispatch({ type: 'TICK', now: Date.now() }), 250)
+void loadEvenHub()
+render()
+
+// Exposed for the Even Hub simulator harness. Not a mock data source.
+;(window as unknown as { sigil: { start: (card: Card) => void; state: () => AppState; queued: () => Card | null } }).sigil = {
+  start: (card) => dispatch({ type: 'REQUEST', card }),
+  state: () => state,
+  queued: () => queued,
+}

@@ -1,0 +1,8 @@
+{
+  "name": "Sigil",
+  "version": "0.1.0",
+  "description": "Every transaction explained in one line on your glasses, let through or stopped with one tap of the ring",
+  "origins": ["http://localhost:8080"],
+  "inputs": ["ring", "touch", "voice"],
+  "display": { "width": 576, "height": 288, "monochrome": true }
+}

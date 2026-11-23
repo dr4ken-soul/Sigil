@@ -1,0 +1,17 @@
+node_modules/
+dist/
+.next/
+.env
+.env.*
+!.env.example
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+.vercel
+.playwright
+coverage/
+.DS_Store
+test-results/
+playwright-report/
+.env*
