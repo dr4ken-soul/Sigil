@@ -23,6 +23,10 @@ let queued: Card | null = null
 let renderToGlasses: ((lines: [string, string, string, string]) => void) | null = null
 
 function dispatch(event: Event): void {
+  if (event.type === 'REQUEST') {
+    window.clearTimeout(decodeTimer)
+    decodeTimer = 0
+  }
   state = reduce(state, event)
   render()
 }
@@ -60,9 +64,8 @@ function render(): void {
     renderToGlasses([source, statement, facts, action])
   }
 
-  if (state.screen === 'DECODING' && state.card) {
-    window.clearTimeout(decodeTimer)
-    decodeTimer = window.setTimeout(() => dispatch({ type: 'DECODED' }), 250)
+  if (state.screen === 'DECODING' && state.card && decodeTimer === 0) {
+    decodeTimer = window.setTimeout(() => { decodeTimer = 0; dispatch({ type: 'DECODED' }) }, 250)
   }
 
   if (state.screen === 'STAMP' && state.stamp && state.card) {
@@ -92,27 +95,28 @@ attachInputs(root, {
 
 connect(backend, {
   onRequest: (card) => { queued = card; dispatch({ type: 'REQUEST', card }) },
-  onVerdict: (card) => { queued = card; if (state.screen !== 'STAMP') dispatch({ type: 'NEXT' }) },
+  onVerdict: (card) => { queued = card; if (state.screen !== 'STAMP') dispatch({ type: 'NEXT' }); if (!queued) dispatch({ type: 'SUMMARY' }) },
   onQueue: (card) => { if (card) queued = card },
   onOffline: () => dispatch({ type: 'OFFLINE' }),
   onOnline: () => { if (state.screen === 'OFFLINE') dispatch({ type: 'ONLINE' }) },
 })
 
-window.setInterval(() => dispatch({ type: 'TICK', now: Date.now() }), 250)
+window.setInterval(() => { dispatch({ type: 'TICK', now: Date.now() }); if (state.screen === 'IDLE' && !queued && state.counts.approved + state.counts.denied + state.counts.expired > 0) dispatch({ type: 'SUMMARY' }) }, 250)
 render()
 void initEvenHub({
   onRingTap: () => dispatch({ type: 'RING_TAP' }),
   onRingHold: () => dispatch({ type: 'RING_HOLD' }),
   onVoice: (text) => dispatch({ type: 'VOICE', text }),
-  onTouch: () => dispatch({ type: 'VOICE', text: 'details' }),
+  onTouch: () => dispatch({ type: 'VOICE_START' }),
   onSwipe: () => dispatch({ type: 'VOICE', text: 'details' }),
   onOffline: () => dispatch({ type: 'OFFLINE' }),
   onOnline: () => dispatch({ type: 'ONLINE' }),
 }).then((renderer) => { renderToGlasses = renderer; render() }).catch(() => undefined)
 
 // Exposed for the Even Hub simulator harness. Not a mock data source.
-;(window as unknown as { sigil: { start: (card: Card) => void; state: () => AppState; queued: () => Card | null } }).sigil = {
+;(window as unknown as { sigil: { start: (card: Card) => void; dispatch: (event: import('./state.js').Event) => void; state: () => AppState; queued: () => Card | null } }).sigil = {
   start: (card) => dispatch({ type: 'REQUEST', card }),
+  dispatch: (event) => dispatch(event),
   state: () => state,
   queued: () => queued,
 }

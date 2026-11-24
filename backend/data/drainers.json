@@ -1,4 +1,9 @@
 {
-  "source": "Sigil maintained list. Add addresses with a source note before each entry.",
-  "addresses": []
+  "source": "Public drainer wallet catalog, https://gist.github.com/IlluminatiFish/aa540aac9880386cf73bf2c947ebb8ee, captured 2026-11-24. Add future entries with a source note.",
+  "addresses": [
+    "0x252166461cbe83cbe69d7baf9344a74e64f5bc3f",
+    "0xc45c2fc0eae87263f4055c7838a93730edabebb6",
+    "0x000812de2241ab594ae154060028f70f39dae000",
+    "0x9a9cdb3747b2f280fd809f62a20abc8256ea650a"
+  ]
 }

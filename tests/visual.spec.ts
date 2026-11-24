@@ -25,3 +25,26 @@ test('g2 canvas at 576 by 288', async ({ page }) => {
   await expect(page.getByText('NO REQUESTS WAITING')).toBeVisible()
   await page.screenshot({ path: 'screenshots/g2-idle.png' })
 })
+
+test('companion at 200 percent zoom and in greyscale', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/')
+  await expect(page.getByRole('heading', { name: 'LEDGER' })).toBeVisible()
+  await page.evaluate(() => { document.documentElement.style.zoom = '2' })
+  await page.screenshot({ path: 'screenshots/companion-zoom200.png', fullPage: true })
+  await page.evaluate(() => { document.documentElement.style.zoom = '1' })
+
+  await page.request.post('http://localhost:8080/requests', {
+    data: {
+      source: 'evm',
+      payload: { kind: 'evm-approve', to: '0x7a3c1234567890abcdef1234567890abcdef9f2c', spender: '0x1f4b1234567890abcdef1234567890abcdefc2e8', asset: 'USDT', unlimited: true },
+    },
+  })
+  await page.reload()
+  const row = page.locator('button[data-ledger-row="0"]')
+  await expect(row).toBeVisible()
+  await row.click()
+  await expect(page.getByText('! unlimited allowance')).toBeVisible()
+  await page.evaluate(() => { document.documentElement.style.filter = 'grayscale(1)' })
+  await page.screenshot({ path: 'screenshots/companion-greyscale.png', fullPage: true })
+})

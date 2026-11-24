@@ -47,4 +47,15 @@ describe('G2 verdict loop', () => {
   it('unknown voice text never becomes an action', () => {
     expect(reduce(verdictState(), { type: 'VOICE', text: 'maybe sign it' }).screen).toBe('VERDICT')
   })
+  it('respects 15, 30 and 60 second auto-deny windows', () => {
+    for (const seconds of [15, 30, 60]) {
+      const now = Date.now()
+      const windowCard: Card = { ...card, autoDenyAt: now + seconds * 1000 }
+      const state = reduce(reduce(initialState, { type: 'REQUEST', card: windowCard }), { type: 'DECODED' })
+      expect(reduce(state, { type: 'TICK', now: now + seconds * 1000 - 1 }).stamp).toBeNull()
+      const expired = reduce(state, { type: 'TICK', now: now + seconds * 1000 })
+      expect(expired.stamp?.decision).toBe('AUTO-DENIED')
+      expect(expired.stamp?.route).toBe('VIA TIMEOUT')
+    }
+  })
 })

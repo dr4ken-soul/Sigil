@@ -13,9 +13,12 @@ export default function LedgerPage() {
   const [data, setData] = useState<LedgerResponse>({ requests: [], counts: { waiting: 0, approved: 0, denied: 0, expired: 0 } })
   const [filter, setFilter] = useState<Filter>('ALL')
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(true)
   const [live, setLive] = useState(true)
+  const [selected, setSelected] = useState(0)
 
   async function load(next: Filter = filter) {
+    setLoading(true)
     try {
       const result = await getJson<LedgerResponse>(`/ledger?filter=${next}`)
       setData(result)
@@ -24,6 +27,8 @@ export default function LedgerPage() {
     } catch {
       setError('! Ledger unavailable, retry')
       setLive(false)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -32,6 +37,19 @@ export default function LedgerPage() {
     const timer = window.setInterval(() => void load(), 5000)
     return () => window.clearInterval(timer)
   }, [filter])
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      const count = data.requests.length
+      if (!count || (event.key !== 'j' && event.key !== 'k')) return
+      event.preventDefault()
+      const next = event.key === 'j' ? Math.min(selected + 1, count - 1) : Math.max(selected - 1, 0)
+      setSelected(next)
+      document.querySelector<HTMLElement>(`[data-ledger-row="${next}"]`)?.focus()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [data.requests.length, selected])
 
   return (
     <>
@@ -55,13 +73,25 @@ export default function LedgerPage() {
             </div>
             {error ? <div className="mt-4 border border-risk text-risk rounded-sm px-3 py-2 font-mono text-xs">{error} <button type="button" onClick={() => void load()}>RETRY</button></div> : null}
             <div className="mt-4">
-              {data.requests.length === 0 ? (
+              {loading && !error ? (
+                <div role="status" aria-label="Loading ledger">
+                  {[0, 1, 2].map((row) => (
+                    <div key={row} className="animate-pulse border-b border-[var(--border-subtle)] py-4 flex gap-4">
+                      <div className="h-3 w-20 bg-panel rounded-sm" />
+                      <div className="h-3 w-16 bg-panel rounded-sm" />
+                      <div className="h-3 flex-1 bg-panel rounded-sm" />
+                      <div className="h-3 w-24 bg-panel rounded-sm" />
+                    </div>
+                  ))}
+                </div>
+              ) : data.requests.length === 0 ? (
                 <div className="py-10 text-center">
                   <div className="text-text-primary">NOTHING RECORDED YET</div>
                   <div className="mt-2 text-sm text-text-muted">Pair a device and the first verdict lands here</div>
                 </div>
-              ) : data.requests.map((request) => <LedgerRow key={request.id} request={request} />)}
+              ) : data.requests.map((request, index) => <LedgerRow key={request.id} request={request} index={index} />)}
             </div>
+            {data.requests.length > 0 ? <p className="mt-4 font-mono text-[10px] text-text-muted">J / K TO MOVE ROWS, ENTER TO EXPAND</p> : null}
           </section>
         </div>
       </main>

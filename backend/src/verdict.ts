@@ -1,6 +1,7 @@
 import type { AppContext } from './context.js'
 import type { FactRow, RequestStatus, VerdictRoute } from './decode/types.js'
 import { mirrorVerdict } from './telegram/mirror.js'
+import { alertChannel } from './telegram/alert.js'
 import { placeTestnetOrder } from './hl/placeOrder.js'
 
 /**
@@ -49,6 +50,7 @@ export async function recordVerdict(
 
   if (recorded.telegramChatId && recorded.telegramMessageId) {
     await mirrorVerdict(recorded, ctx.env.TELEGRAM_BOT_TOKEN ?? '')
+    await alertChannel(recorded, ctx.env.TELEGRAM_BOT_TOKEN ?? '', ctx.env.TELEGRAM_ALERT_CHAT_ID ?? '')
   }
   return ctx.ledger.get(id) as unknown as Record<string, unknown>
 }
@@ -62,5 +64,6 @@ export function expire(ctx: AppContext, id: string): void {
   ctx.publish({ type: 'expiry', request: recorded as unknown as Record<string, unknown> })
   if (recorded.telegramChatId && recorded.telegramMessageId) {
     void mirrorVerdict(recorded, ctx.env.TELEGRAM_BOT_TOKEN ?? '')
+    void alertChannel(recorded, ctx.env.TELEGRAM_BOT_TOKEN ?? '', ctx.env.TELEGRAM_ALERT_CHAT_ID ?? '')
   }
 }

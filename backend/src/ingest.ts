@@ -5,7 +5,7 @@ import type { RequestSource, SigningRequest } from './decode/types.js'
 import { ExplainError, explainLine } from './explain.js'
 import { getRules } from './db/settings.js'
 import { scoreRisk } from './risk.js'
-import { simulateEvm, simulateHyperliquid, simulateTon } from './simulate.js'
+import { simulateEvm, simulateHyperliquid, simulateTon, simulateTonSettlement, type SimulationResult } from './simulate.js'
 
 /** Decode, simulate, score, explain and persist one signing request. */
 export async function ingest(
@@ -19,11 +19,24 @@ export async function ingest(
     if (decoded.counterparty === recipient) decoded.firstTimeRecipient = false
   }
   const risk = scoreRisk(decoded, rules)
-  const simulation = decoded.kind === 'hl-order'
-    ? simulateHyperliquid()
-    : decoded.kind === 'ton-transfer'
-      ? await simulateTon(decoded, ctx.env.TONCENTER_TESTNET_API ?? '', ctx.env.TONCENTER_API_KEY ?? '')
-      : await simulateEvm(decoded, ctx.env.ETHEREUM_RPC_URL ?? '')
+  let simulation: SimulationResult
+  if (decoded.kind === 'hl-order') {
+    simulation = simulateHyperliquid()
+  } else if (decoded.kind === 'ton-transfer') {
+    const endpoint = ctx.env.TONCENTER_TESTNET_API ?? ''
+    const key = ctx.env.TONCENTER_API_KEY ?? ''
+    const [state, settlement] = await Promise.all([
+      simulateTon(decoded, endpoint, key),
+      simulateTonSettlement(decoded, endpoint, key),
+    ])
+    simulation = {
+      ok: state.ok || settlement.ok,
+      note: `${state.note} | ${settlement.note}`,
+      facts: [...state.facts, ...settlement.facts],
+    }
+  } else {
+    simulation = await simulateEvm(decoded, ctx.env.ETHEREUM_RPC_URL ?? '')
+  }
   const facts = [...decoded.facts]
   if (risk.level === 'check' || risk.level === 'danger') {
     for (const flag of risk.flags) facts.push({ label: flag.level.toUpperCase(), value: flag.fact, flagged: true })

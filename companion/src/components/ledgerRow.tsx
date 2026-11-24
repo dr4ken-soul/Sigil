@@ -13,7 +13,7 @@ function riskChip(level: string) {
 }
 
 /** Ledger row. Expands with facts, selector and a testnet explorer link. */
-export function LedgerRow({ request }: { request: LedgerRequest }) {
+export function LedgerRow({ request, index = 0 }: { request: LedgerRequest; index?: number }) {
   const [open, setOpen] = useState(false)
   const verdict = request.status === 'approved'
     ? '✓ APPROVED · ' + (request.verdict?.route ?? 'RING').toUpperCase()
@@ -26,7 +26,7 @@ export function LedgerRow({ request }: { request: LedgerRequest }) {
 
   return (
     <div className="border-b border-[var(--border-subtle)]">
-      <button type="button" aria-label={name} aria-expanded={open}
+      <button type="button" data-ledger-row={index} aria-label={name} aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
         onKeyDown={(e) => { if (e.key === 'Escape') setOpen(false) }}
         className="w-full grid grid-cols-[110px_90px_1fr_120px] md:grid-cols-[130px_100px_1fr_140px_140px] items-center gap-4 py-3 text-sm hover:bg-panel transition-colors duration-[120ms] text-left">

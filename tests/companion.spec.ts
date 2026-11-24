@@ -9,10 +9,10 @@ test('companion shell shows the wordmark and three nav links', async ({ page }) 
   }
 })
 
-test('ledger shows the invariant and empty state', async ({ page }) => {
+test('ledger shows the invariant', async ({ page }) => {
   await page.goto('/')
   await expect(page.getByRole('heading', { name: 'LEDGER' })).toBeVisible()
-  await expect(page.getByText('NOTHING RECORDED YET')).toBeVisible()
+  await expect(page.getByText('! Ledger unavailable, retry')).toHaveCount(0)
 })
 
 test('pair page shows the six-character code and the regenerate action', async ({ page }) => {

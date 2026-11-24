@@ -297,6 +297,7 @@ ETHEREUM_RPC_URL=               # Sepolia or equivalent testnet RPC
 TONCENTER_TESTNET_API=
 TONCENTER_API_KEY=
 TELEGRAM_BOT_TOKEN=
+TELEGRAM_ALERT_CHAT_ID=
 STT_PROVIDER=whisper-api        # or whisper-cpp
 OPENAI_API_KEY=                 # only when STT_PROVIDER=whisper-api
 WHISPER_CPP_PATH=               # only when STT_PROVIDER=whisper-cpp

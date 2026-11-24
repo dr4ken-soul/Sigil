@@ -29,11 +29,13 @@ export type Event =
   | { type: 'DECODE_FAILED'; stage: string }
   | { type: 'RING_TAP' }
   | { type: 'RING_HOLD' }
+  | { type: 'VOICE_START' }
   | { type: 'VOICE'; text: string }
   | { type: 'TICK'; now: number }
   | { type: 'OFFLINE' }
   | { type: 'ONLINE' }
   | { type: 'NEXT' }
+  | { type: 'SUMMARY' }
   | { type: 'REFRESH' }
 
 export const initialState: AppState = {
@@ -65,7 +67,10 @@ export function reduce(state: AppState, event: Event): AppState {
       return { ...state, screen: 'ERROR', errorStage: event.stage }
     case 'RING_TAP':
       if (state.screen === 'VERDICT') return { ...state, screen: 'STAMP', stamp: { decision: 'APPROVED', route: 'VIA RING', at: Date.now() }, stampAt: Date.now() }
-      if (state.screen === 'DETAIL') return { ...state, detailIndex: (state.detailIndex + 1) % DETAIL_COUNT }
+      if (state.screen === 'DETAIL') {
+        if (state.detailIndex >= DETAIL_COUNT - 1) return { ...state, screen: 'VERDICT', detailIndex: 0 }
+        return { ...state, detailIndex: state.detailIndex + 1 }
+      }
       if (state.screen === 'STAMP' && Date.now() - state.stampAt >= 900) return next(state)
       if (state.screen === 'IDLE' || state.screen === 'ERROR') return { ...state, screen: 'DECODING', decodeStarted: Date.now(), decodeDots: 0 }
       return state
@@ -73,13 +78,15 @@ export function reduce(state: AppState, event: Event): AppState {
       if (state.screen === 'VERDICT') return { ...state, screen: 'STAMP', stamp: { decision: 'DENIED', route: 'VIA RING', at: Date.now() }, stampAt: Date.now() }
       if (state.screen === 'ERROR') return { ...state, screen: 'IDLE', card: null }
       return state
+    case 'VOICE_START':
+      return state.screen === 'VERDICT' ? { ...state, screen: 'VOICE' } : state
     case 'VOICE': {
       const intent = matchIntent(event.text)
       if (!intent) return { ...state, screen: state.screen === 'VOICE' ? 'VERDICT' : state.screen }
-      if (intent === 'approve' && state.screen === 'VERDICT') return { ...state, screen: 'STAMP', stamp: { decision: 'APPROVED', route: 'VIA VOICE', at: Date.now() }, stampAt: Date.now() }
-      if ((intent === 'deny' || intent === 'stop') && state.screen === 'VERDICT') return { ...state, screen: 'STAMP', stamp: { decision: 'DENIED', route: 'VIA VOICE', at: Date.now() }, stampAt: Date.now() }
-      if (intent === 'details' && state.screen === 'VERDICT') return { ...state, screen: 'DETAIL', detailIndex: 0 }
-      if (intent === 'explain' && state.screen === 'VERDICT') return { ...state, explainUntil: Date.now() + 6000 }
+      if (intent === 'approve' && (state.screen === 'VERDICT' || state.screen === 'VOICE')) return { ...state, screen: 'STAMP', stamp: { decision: 'APPROVED', route: 'VIA VOICE', at: Date.now() }, stampAt: Date.now() }
+      if ((intent === 'deny' || intent === 'stop') && (state.screen === 'VERDICT' || state.screen === 'VOICE')) return { ...state, screen: 'STAMP', stamp: { decision: 'DENIED', route: 'VIA VOICE', at: Date.now() }, stampAt: Date.now() }
+      if (intent === 'details' && (state.screen === 'VERDICT' || state.screen === 'VOICE')) return { ...state, screen: 'DETAIL', detailIndex: 0 }
+      if (intent === 'explain' && (state.screen === 'VERDICT' || state.screen === 'VOICE')) return { ...state, explainUntil: Date.now() + 6000 }
       if (intent === 'next') return next(state)
       return state
     }
@@ -100,6 +107,8 @@ export function reduce(state: AppState, event: Event): AppState {
       return { ...state, screen: 'IDLE', card: null }
     case 'NEXT':
       return next(state)
+    case 'SUMMARY':
+      return { ...state, screen: 'SUMMARY', card: null, stamp: null }
     case 'REFRESH':
       return { ...state, screen: 'IDLE', card: null }
     default:
