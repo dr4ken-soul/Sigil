@@ -32,7 +32,10 @@ export async function simulateTon(decoded: DecodedRequest, endpoint: string, api
     const response = await fetch(`${endpoint}/api/v2/getAddressInformation?address=${encodeURIComponent(decoded.to)}`, {
       headers: apiKey ? { 'X-API-Key': apiKey } : undefined,
     })
-    if (!response.ok) return { ok: false, note: `TON_STATE_FAILED: ${response.status}`, facts: [] }
+    if (!response.ok) {
+      const body = (await response.text()).slice(0, 160)
+      return { ok: false, note: `TON_STATE_FAILED: ${response.status} ${body}`, facts: [] }
+    }
     return { ok: true, note: 'TON testnet state read', facts: ['STATE available on testnet'] }
   } catch (error) {
     return { ok: false, note: `TON_STATE_FAILED: ${(error as Error).message}`, facts: [] }
