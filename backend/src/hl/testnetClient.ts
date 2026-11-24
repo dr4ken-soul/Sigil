@@ -10,6 +10,17 @@ export function testnetBaseUrl(configured?: string): string {
   return value
 }
 
+/** Read the testnet universe. No key and no funds are needed. */
+export async function getMeta(configured?: string): Promise<unknown> {
+  const response = await fetch(`${testnetBaseUrl(configured)}/info`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ type: 'meta' }),
+  })
+  if (!response.ok) throw new Error(`HL_META_FAILED: ${response.status}`)
+  return response.json()
+}
+
 /** Read positions from the Hyperliquid testnet. */
 export async function getPositions(user: string, configured?: string): Promise<unknown> {
   const response = await fetch(`${testnetBaseUrl(configured)}/info`, {

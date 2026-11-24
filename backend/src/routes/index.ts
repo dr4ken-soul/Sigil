@@ -8,6 +8,7 @@ import { registerStreamRoutes } from './stream.js'
 import { registerLedgerRoutes } from './ledger.js'
 import { registerSettingsRoutes } from './settings.js'
 import { registerSttRoutes } from './stt.js'
+import { registerHyperliquidReadOnlyRoutes } from './hl.js'
 
 /** Register the backend API surface from APP_BLUEPRINT.md. */
 export function registerRoutes(app: FastifyInstance, ctx: AppContext): void {
@@ -19,5 +20,6 @@ export function registerRoutes(app: FastifyInstance, ctx: AppContext): void {
   registerLedgerRoutes(app, ctx)
   registerSettingsRoutes(app, ctx)
   registerSttRoutes(app, ctx)
+  registerHyperliquidReadOnlyRoutes(app, ctx)
   app.get('/health', async () => ({ ok: true, service: 'sigil-backend' }))
 }
