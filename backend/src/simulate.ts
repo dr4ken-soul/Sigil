@@ -29,7 +29,7 @@ export async function simulateEvm(decoded: DecodedRequest, rpcUrl: string): Prom
 export async function simulateTon(decoded: DecodedRequest, endpoint: string, apiKey = ''): Promise<SimulationResult> {
   if (!endpoint) return { ok: false, note: 'TONCENTER_TESTNET_API not configured', facts: [] }
   try {
-    const response = await fetch(`${endpoint}/api/v2/addresses/${encodeURIComponent(decoded.to)}`, {
+    const response = await fetch(`${endpoint}/api/v2/getAddressInformation?address=${encodeURIComponent(decoded.to)}`, {
       headers: apiKey ? { 'X-API-Key': apiKey } : undefined,
     })
     if (!response.ok) return { ok: false, note: `TON_STATE_FAILED: ${response.status}`, facts: [] }
