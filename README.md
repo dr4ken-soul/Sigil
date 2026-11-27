@@ -93,6 +93,13 @@ vercel env add NEXT_PUBLIC_BACKEND_URL production
 # value is the Railway service URL, for example https://sigil-app.up.railway.app
 ```
 
+## Known Limitations in This Build
+
+- Hyperliquid testnet reads work, but live testnet order placement is blocked by an open Hyperliquid testnet deposit bug. USDC leaves HyperEVM and the HyperCore forward never lands, so the account stays unfunded. Tracking issues: https://github.com/hyperliquid-dex/node/issues/174 and https://github.com/hyperliquid-dex/node/issues/177
+- The voice path is verified through Groq and the backend `/stt` route with generated audio. Raw microphone audio from real G2 hardware is not verified because no glasses were available. The Even Hub simulator has no audio injection
+- Everything is testnet or read-only. No mainnet path exists in this build
+- Demo video is recorded in the Even Hub simulator, which the hackathon brief allows
+
 ## Licence and Attribution
 
 Code licence: MIT (to confirm at publication). Product names (Hyperliquid, Telegram, Trust Wallet, Gram Wallet, Even Realities) belong to their owners; Sigil integrates their public APIs per their terms.
