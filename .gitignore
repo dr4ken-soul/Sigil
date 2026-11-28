@@ -15,4 +15,6 @@ coverage/
 test-results/
 playwright-report/
 screenshots/
+demo/frames45/
+demo/bed.wav
 .env*

@@ -40,6 +40,11 @@ cd companion && npm install && npm run dev
 
 Environment variables are documented in `APP_BLUEPRINT.md`. Every key stays on the backend. The glasses bundle and companion contain zero secrets.
 
+## Demo Videos
+
+- `demo/sigil-demo.mp4`: the original 18-second simulator capture, unchanged
+- `demo/sigil-demo-45s.mp4`: a 45-second directed cut at 1280 x 720 and 30 fps, with caption plates, real simulator screens, a live ledger capture and a synthesised 120 BPM bed
+
 ## Demo Script (3 minutes)
 
 1. A forwarded Telegram request lands; the glasses show "Send 250 USDT to 0x7a3c…9f2c" with SAFE

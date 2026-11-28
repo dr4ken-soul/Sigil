@@ -1,0 +1,196 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  :root{
+    --paper:#f4f1ea; --ink:#0b0b0c; --near:#121214; --dim:#8b8b86;
+    --green:#39e07a; --red:#ff4b3a; --line:rgba(244,241,234,.18);
+    --mono:'DejaVu Sans Mono',monospace; --sans:'DejaVu Sans',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:1280px;height:720px;overflow:hidden;background:var(--ink)}
+  #stage{position:absolute;inset:0;background:var(--ink);color:var(--paper);font-family:var(--sans)}
+  .scene{position:absolute;inset:0;opacity:0}
+  .scene.light{background:var(--paper);color:var(--ink)}
+  .scene.dark{background:var(--ink);color:var(--paper)}
+
+  /* persistent furniture */
+  #furn{position:absolute;inset:0;pointer-events:none;z-index:40;font-family:var(--mono);
+    font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:currentColor;opacity:.62}
+  #tag{position:absolute;left:64px;top:46px}
+  #clock{position:absolute;right:64px;top:46px}
+  #rule{position:absolute;left:64px;right:64px;top:78px;height:1px;background:currentColor;opacity:.25}
+  #prog{position:absolute;left:0;bottom:0;height:2px;background:var(--green);width:0}
+
+  /* type */
+  .head{position:absolute;left:64px;right:64px;top:150px;font-weight:900;font-size:96px;
+    line-height:.92;letter-spacing:-.035em;max-width:1020px}
+  .head.small{font-size:58px;top:126px;max-width:540px}
+  .head .em{color:var(--green)}
+  .head .rd{color:var(--red)}
+  .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.24em;text-transform:uppercase;
+    opacity:.6;margin-bottom:24px}
+
+  /* caption plate */
+  .cap{position:absolute;left:64px;bottom:56px;max-width:720px;background:rgba(8,8,9,.92);
+    color:#f4f1ea;font-family:var(--mono);font-size:18px;line-height:1.5;padding:16px 20px;
+    border-radius:3px;border-left:2px solid var(--green)}
+  .scene.light .cap{background:#0b0b0c}
+
+  /* glasses */
+  #rig{position:absolute;right:40px;top:166px;width:620px;height:310px;padding:9px;
+    background:#191b1a;border:1px solid rgba(255,255,255,.18);border-radius:8px;
+    box-shadow:0 0 0 10px rgba(0,0,0,.25),0 26px 70px rgba(0,0,0,.55)}
+  #rig img{width:100%;height:100%;object-fit:cover;display:block;border-radius:2px;
+    image-rendering:auto;filter:contrast(1.05) brightness(1.02)}
+  #rig .lab{position:absolute;left:12px;top:-27px;font-family:var(--mono);font-size:10px;
+    letter-spacing:.22em;color:var(--dim);text-transform:uppercase}
+
+  /* decoded fields */
+  #panel{position:absolute;left:64px;top:302px;width:500px;font-family:var(--mono);font-size:14px}
+  .row{display:flex;justify-content:space-between;gap:20px;padding:13px 0;border-bottom:1px solid var(--line)}
+  .row .k{opacity:.5;letter-spacing:.18em;font-size:11px;text-transform:uppercase}
+  .row .v{text-align:right;font-size:14px}
+  .row.bad .v{color:var(--red);font-weight:700}
+  .row.good .v{color:var(--green)}
+
+  /* stamp */
+  #stamp{position:absolute;right:92px;top:414px;font-family:var(--mono);font-weight:700;
+    font-size:78px;letter-spacing:.06em;color:var(--red);border:2px solid var(--red);
+    padding:8px 26px 12px;transform:rotate(-7deg);opacity:0;background:rgba(11,11,12,.35)}
+  #stamp.good{color:var(--green);border-color:var(--green)}
+
+  /* ledger + chat */
+  #desk{position:absolute;left:100px;top:118px;width:1080px;height:465px;border:1px solid var(--line);
+    box-shadow:0 30px 80px rgba(0,0,0,.55);overflow:hidden;background:#0b0b0c}
+  #desk img{width:100%;display:block;filter:brightness(1.28) contrast(1.08)}
+  #chat{position:absolute;right:120px;top:160px;width:430px;background:#0e1512;border:1px solid #24352c;
+    border-radius:10px;padding:20px;font-family:var(--mono);font-size:15px;line-height:1.55;
+    box-shadow:0 30px 80px rgba(0,0,0,.55)}
+  #chat .top{font-size:11px;letter-spacing:.2em;color:#69a986;text-transform:uppercase;
+    border-bottom:1px solid #21342a;padding-bottom:12px;margin-bottom:16px}
+  .bub{background:#16251d;border:1px solid #253c30;padding:12px 14px;margin:0 0 12px;border-radius:7px}
+  .bub .who{font-size:10px;letter-spacing:.18em;color:#7fae93;margin-bottom:6px}
+  .bub.bad{border-color:#5a2a24;background:#20130f}
+  .bub.bad .val{color:#ff6a5a;font-weight:700}
+
+  /* endcard */
+  #end{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
+    padding:64px;background:var(--ink);color:var(--paper)}
+  #end .logo{font-size:168px;font-weight:900;letter-spacing:-.06em;line-height:.8;color:var(--green)}
+  #end .line{margin-top:26px;font-size:40px;font-weight:800;letter-spacing:-.03em}
+  #end .url{margin-top:44px;font-family:var(--mono);font-size:22px;letter-spacing:.06em}
+  #end .fine{margin-top:14px;font-family:var(--mono);font-size:12px;line-height:1.7;color:#8f8f8a;max-width:760px}
+
+  /* texture */
+  #grain{position:absolute;inset:0;z-index:35;pointer-events:none;opacity:.09;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E")}
+  #vig{position:absolute;inset:0;z-index:34;pointer-events:none;
+    background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.38) 100%)}
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<div id="grain"></div><div id="vig"></div>
+<div id="furn"><div id="tag">SIGIL // TESTNET</div><div id="clock">00:00.0</div><div id="rule"></div></div>
+<div id="prog"></div>
+<script>
+const IMG = '../evidence/';
+const SCENES = [
+ {in:0,out:2,ground:'dark',kicker:'every signature',head:['you sign','blind.'],cap:'the wallet shows a hash and a number. the risk sits in the fields.'},
+ {in:2,out:4,ground:'dark',kicker:'sigil',head:['it reads the','request first.'],cap:'before you approve, sigil decodes the call and names what it does.'},
+ {in:4,out:8,ground:'dark',kind:'evidence',img:'g2-decoding.png',label:'G2 // DECODING',head:['unlimited approval','is the quiet killer.'],panel:[['NETWORK','Sepolia'],['KIND','ERC-20 approve'],['SPENDER','0x1f4b...c2e8']],cap:'an approve is not a payment. it grants permission, and the amount matters.'},
+ {in:8,out:12,ground:'dark',kind:'evidence',img:'g2-verdict.png',label:'G2 // VERDICT',head:['one field decides','everything.'],panel:[['ASSET','USDC'],['VALUE','any','bad'],['SPENDER','0x1f4b...c2e8'],['VERDICT','DANGER','bad']],cap:'the allowance is the maximum. the spender can move the whole balance.'},
+ {in:12,out:14,ground:'dark',kind:'stamp',img:'g2-verdict.png',head:['the stamp is not','decoration.'],stamp:'DANGER',cap:'high risk gets a word you can read at arm length on a 576 by 288 display.'},
+ {in:14,out:18,ground:'dark',kind:'evidence',img:'g2-detail.png',label:'G2 // TON TRANSFER',head:['a message says','one thing.'],panel:[['NETWORK','TON testnet'],['COMMENT','rent'],['AMOUNT','1.00 TON'],['VERDICT','CHECK']],cap:'the comment says rent. the payload is what the contract will actually receive.'},
+ {in:18,out:22,ground:'dark',kind:'evidence',img:'g2-voice.png',label:'G2 // VOICE',head:['ask it','out loud.'],panel:[['INPUT','microphone'],['MODEL','Groq Whisper'],['INTENT','deny','good']],cap:'say approve, deny, details, explain or next. the transcript shows before the verdict.'},
+ {in:22,out:26,ground:'dark',kind:'stamp',img:'g2-denied.png',head:['the verdict lands','on glass.'],stamp:'DENIED',cap:'one line, plain english, then the decision. no scrolling, no wallet screen.'},
+ {in:26,out:30,ground:'dark',kind:'desk',img:'ledger-crop.png',head:['every verdict is','written down.'],cap:'every verdict is written down. the companion ledger keeps the fields, the risk flags and the decision for later audit.'},
+ {in:30,out:34,ground:'dark',kind:'chat',head:['the same verdict','in your chat.'],cap:'the bot mirrors the result to the chat that sent the request. it does not sign.'},
+ {in:34,out:38,ground:'dark',kind:'evidence',img:'g2-offline.png',label:'G2 // LINK LOST',head:['link drops.','the verdict holds.'],panel:[['BRIDGE','disconnected'],['LAST VERDICT','DANGER','bad'],['STATE','held']],cap:'the glasses keep the last verdict. a lost bridge does not erase the warning.'},
+ {in:38,out:41,ground:'dark',kicker:'deterministic first',head:['no model writes','the sentence.'],cap:'risk uses explicit flags. the verdict sentence is assembled from templates, so it cannot drift.'},
+ {in:41,out:42,ground:'dark',kicker:'one model, one job',head:['the model only','hears.'],cap:'Groq transcribes the microphone. the model never decides whether the transaction is safe.'},
+ {in:42,out:45,ground:'dark',kind:'end'}
+];
+
+const stage = document.getElementById('stage');
+const nodes = [];
+for (const s of SCENES){
+  const d = document.createElement('div');
+  d.className = 'scene ' + (s.ground==='light'?'light':'dark');
+  let html = '';
+  if (s.kind === 'evidence' || s.kind === 'stamp'){
+    html += `<div id="rig"><span class="lab">${s.label||'G2 // LIVE'}</span><img src="${IMG+s.img}"></div>`;
+  }
+  if (s.kind === 'desk'){
+    html += `<div id="desk"><img src="${IMG+s.img}"></div>`;
+  }
+  if (s.kind === 'chat'){
+    html += `<div id="chat"><div class="top">TELEGRAM // SIGIL BOT</div>
+      <div class="bub"><div class="who">INCOMING REQUEST</div>APPROVE USDC // 0x1f4b...c2e8</div>
+      <div class="bub bad"><div class="who">SIGIL</div><span class="val">DANGER</span><br>Unlimited allowance. The spender can move your whole balance.</div>
+      <div class="bub"><div class="who">MIRROR</div>Decided on glasses at 04:52. Nothing signed yet.</div></div>`;
+  }
+  if (s.kind === 'end'){
+    html += `<div id="end"><div class="logo">SIGIL</div><div class="line">read before you sign.</div>
+      <div class="url">github.com/dr4ken-soul/Sigil</div>
+      <div class="fine">Even G2 smart glasses. Deterministic risk engine. Testnet only.<br>Hyperliquid reads are live. Order placement is blocked by an upstream testnet deposit bug.</div></div>`;
+  } else {
+    if (s.kicker) html += `<div class="kicker">${s.kicker}</div>`;
+    if (s.head) html += `<div class="head${s.kind==='evidence'||s.kind==='desk'?' small':''}">${s.head.map(x=>`<div>${x}</div>`).join('')}</div>`;
+    if (s.panel) html += `<div id="panel">${s.panel.map(r=>`<div class="row ${r[2]||''}"><span class="k">${r[0]}</span><span class="v">${r[1]}</span></div>`).join('')}</div>`;
+    if (s.stamp) html += `<div id="stamp" class="${s.stamp==='APPROVE'?'good':''}">${s.stamp}</div>`;
+    if (s.cap) html += `<div class="cap">${s.cap}</div>`;
+  }
+  d.innerHTML = html;
+  stage.appendChild(d);
+  nodes.push({el:d, s, head:d.querySelector('.head'), panel:d.querySelector('#panel'), stamp:d.querySelector('#stamp'), rig:d.querySelector('#rig')});
+}
+
+const easeOut = x => 1 - Math.pow(1-x,3);
+const clamp = (x,a=0,b=1)=>Math.max(a,Math.min(b,x));
+
+function render(t){
+  document.getElementById('clock').textContent = '00:' + t.toFixed(1).padStart(4,'0');
+  document.getElementById('prog').style.width = (t/45*100) + '%';
+  const beat = 0.5;
+  const phase = (t % beat)/beat;
+  const k = Math.pow(1-phase,4);
+  for (const n of nodes){
+    const s = n.s;
+    const on = t >= s.in && t < s.out;
+    n.el.style.opacity = on ? 1 : 0;
+    if (!on) continue;
+    const lt = t - s.in;
+    const dur = Math.min(0.62, (s.out-s.in)*0.35);
+    const a = easeOut(clamp(lt/dur));
+    const out = clamp((s.out - t)/0.22);
+    n.el.style.transform = `scale(${1 + k*0.004})`;
+    if (n.head){
+      n.head.style.display = s.kind === 'desk' ? 'none' : 'block';
+      n.head.style.opacity = a*out;
+      n.head.style.transform = `translateY(${(1-a)*34}px)`;
+    }
+    if (n.panel){
+      n.panel.style.opacity = a*out;
+      n.panel.style.transform = `translateY(${(1-a)*20}px)`;
+    }
+    if (n.rig){
+      n.rig.style.opacity = easeOut(clamp(lt/0.5))*out;
+      n.rig.style.transform = `translateY(${(1-a)*18}px) scale(${1 + k*0.012})`;
+    }
+    if (n.stamp){
+      const st = clamp((lt-0.18)/0.16);
+      const sc = 1.35 - easeOut(st)*0.35;
+      n.stamp.style.opacity = st*out;
+      n.stamp.style.transform = `rotate(-7deg) scale(${sc})`;
+    }
+  }
+}
+window.render = render;
+window.TOTAL = 45;
+render(0);
+</script>
+</body>
+</html>
